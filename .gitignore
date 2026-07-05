@@ -40,7 +40,10 @@ desktop.ini
 # --- Project Specific (ВАЖНО!) ---
 # Кэши и временные данные
 cache/
-piper_models/cache/
+piper_models/
+pawn_voices.json
+personality_pawn_cache.json
+personality_web\__pycache__"
 
 # Локальные конфиги с токенами/паролями (если есть)
  .env
@@ -49,6 +52,8 @@ piper_models/cache/
 # Большие модели TTS (если они скачаны локально и весят гигабайты)
  piper_models/*.onnx
  piper_models/*.json
+ venv/
 
 # Логи
 *.log
+.gitignore
