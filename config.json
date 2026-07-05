@@ -1,0 +1,27 @@
+{
+    "lm_studio_url": "http://localhost:1234/v1/chat/completions",
+    "proxy_port": 1235,
+    "json_backup": "pawn_voices.json",
+    "aliases_file": "voice_aliases.json",
+    "tts_cache_dir": "tts_cache",
+    "piper_model_dir": "piper_models",
+    "speech_volume": 0.6,
+    "thought_volume": 0.4,
+    "name_volume_multiplier": 0.4,
+    "enable_thought_tts": false,
+    "name_pre_delay": 0.5,
+    "name_post_delay": 0.8,
+    "thought_delay_seconds": 1.0,
+    "eva_voice": "ru_RU-irina-medium",
+    "male_voices": [
+        "ru_RU-denis-medium",
+        "ru_RU-ruslan-medium",
+        "ru_RU-dmitri-medium"
+    ],
+    "female_voices": [
+        "ru_RU-irina-medium"
+    ],
+    "max_queue_size": 50,
+    "use_gpu": false,
+    "max_ram_cache_entries": 300
+}

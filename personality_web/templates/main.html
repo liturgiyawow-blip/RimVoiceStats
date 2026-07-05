@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RimMind Personality Web</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+        }
+        h1 { text-align: center; margin-bottom: 24px; color: #e94560; }
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #16213e;
+            border: 1px solid #0f3460;
+            color: #eee;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        .btn:hover { background: #0f3460; border-color: #e94560; }
+        .btn-primary { background: #e94560; border-color: #e94560; }
+        .btn-primary:hover { background: #ff6b81; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 12px;
+            padding: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(233, 69, 96, 0.15); }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #0f3460;
+            padding-bottom: 8px;
+        }
+        .card-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #e94560;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .card-name:hover { color: #ff6b81; }
+        .status-indicators { display: flex; gap: 6px; }
+        .dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            border: 2px solid #1a1a2e;
+        }
+        .dot-green { background: #2ecc71; }
+        .dot-blue { background: #3498db; }
+        .dot-pink { background: #ff6b81; }
+        .dot-yellow { background: #f1c40f; }
+        .card-info { font-size: 0.9em; color: #aaa; margin-bottom: 8px; }
+        .card-info span { margin-right: 12px; }
+        .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+        .tag {
+            background: #0f3460;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            color: #ddd;
+        }
+        .tag-trait { background: #533483; }
+        .tag-health { background: #c0392b; }
+        .tag-mood { background: #27ae60; }
+        .card-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .card-actions .btn { font-size: 12px; padding: 6px 10px; }
+        .preview-box {
+            margin-top: 10px;
+            padding: 8px;
+            background: #1a1a2e;
+            border-radius: 6px;
+            font-size: 0.85em;
+            color: #ccc;
+            max-height: 100px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            display: none;
+        }
+        .preview-box.visible { display: block; }
+        
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 12px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #0f3460;
+            background: #16213e;
+        }
+        .modal-title { font-size: 1.2em; color: #e94560; }
+        .modal-close {
+            background: none; border: none; color: #aaa;
+            font-size: 1.5em; cursor: pointer;
+        }
+        .modal-close:hover { color: #fff; }
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(90vh - 60px);
+            white-space: pre-wrap;
+            line-height: 1.7;
+            color: #ddd;
+            font-size: 1.05em;
+        }
+        .loading { text-align: center; color: #888; padding: 40px; }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px; right: 20px;
+            background: #2ecc71;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 2000;
+        }
+        .toast.error { background: #e74c3c; }
+    </style>
+</head>
+<body>
+    <h1>🧠 RimMind Personality Web</h1>
+    
+    <div class="toolbar">
+        <button class="btn" onclick="loadPawns()">🔄 Обновить</button>
+        <button class="btn btn-primary" onclick="clearCache()">🗑️ Очистить кэш</button>
+    </div>
+    
+    <div id="grid" class="grid">
+        <div class="loading">Загрузка колонистов...</div>
+    </div>
+    
+    <!-- Modal -->
+    <div id="modal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+        <div class="modal">
+            <div class="modal-header">
+                <span id="modal-title" class="modal-title">Текст</span>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modal-body" class="modal-body"></div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+
+    <script>
+        let pawnsData = [];
+        let lastPawnsHash = "";
+        
+        async function loadPawns() {
+            const grid = document.getElementById('grid');
+            try {
+                const res = await fetch('/rimmind/personality/pawns');
+                const data = await res.json();
+                const newPawns = data.pawns || [];
+                
+                // Проверяем, изменились ли данные
+                const newHash = JSON.stringify(newPawns.map(p => 
+                    p.name + (p.daily_story ? 'S' : '') + (p.pure_profile ? 'P' : '') + 
+                    (p.description ? 'D' : '') + (p.workTendencies ? 'W' : '') + (p.socialTendencies ? 'O' : '')
+                ));
+                
+                if (newHash === lastPawnsHash && grid.children.length > 1) {
+                    return; // Ничего не изменилось, не перерисовываем
+                }
+                
+                lastPawnsHash = newHash;
+                pawnsData = newPawns;
+                renderGrid();
+            } catch (e) {
+                grid.innerHTML = '<div class="empty-state">Ошибка загрузки: ' + e.message + '</div>';
+            }
+        }
+        
+        function renderGrid() {
+            const grid = document.getElementById('grid');
+            if (!pawnsData.length) {
+                grid.innerHTML = '<div class="empty-state">Пешки не найдены. Откройте окна колонистов в игре, чтобы они появились здесь.</div>';
+                return;
+            }
+            
+            grid.innerHTML = pawnsData.map(p => {
+                const hasClassic = p.description && p.workTendencies && p.socialTendencies;
+                const hasPure = !!p.pure_profile;
+                const hasStory = !!p.daily_story;
+                
+                let statusColor = 'dot-yellow';
+                if (hasStory) statusColor = 'dot-pink';
+                else if (hasPure) statusColor = 'dot-blue';
+                else if (hasClassic) statusColor = 'dot-green';
+                
+                const traits = (p.traits || []).map(t => `<span class="tag tag-trait">${escapeHtml(t)}</span>`).join('');
+                const health = (p.health || []).map(h => `<span class="tag tag-health">${escapeHtml(h)}</span>`).join('');
+                const mood = p.mood ? `<span class="tag tag-mood">${escapeHtml(p.mood)}</span>` : '';
+                
+                return `
+                <div class="card">
+                    <div class="card-header">
+                        <a href="/rimmind/personality/pawn/${encodeURIComponent(p.name)}" target="_blank" class="card-name">${escapeHtml(p.name)}</a>
+                        <div class="status-indicators">
+                            <span class="dot ${statusColor}" title="Статус профиля"></span>
+                        </div>
+                    </div>
+                    <div class="card-info">
+                        <span>${p.gender || '?'}</span>
+                        <span>${p.race || '?'}</span>
+                        <span>${p.age ? p.age + ' лет' : ''}</span>
+                        <span>${p.mood || ''}</span>
+                    </div>
+                    <div class="tags">${mood}${traits}${health}</div>
+                    
+                    <div class="card-actions">
+                        <button class="btn" onclick="openPawn('${encodeURIComponent(p.name)}')">Подробно</button>
+                        <button class="btn" onclick="generateField('${escapeHtml(p.name)}', 'description')">Описание</button>
+                        <button class="btn" onclick="generateField('${escapeHtml(p.name)}', 'workTendencies')">Работа</button>
+                        <button class="btn" onclick="generateField('${escapeHtml(p.name)}', 'socialTendencies')">Общение</button>
+                        <button class="btn btn-primary" onclick="generateAll('${escapeHtml(p.name)}')">Сгенерировать всё</button>
+                        <button class="btn" onclick="generatePure('${escapeHtml(p.name)}')">✨ Профиль</button>
+                        <button class="btn" onclick="generateStory('${escapeHtml(p.name)}')">🔮 История</button>
+                    </div>
+                    
+                    ${p.pure_profile ? `<div class="preview-box visible"><strong>✨ Профиль:</strong> ${escapeHtml(p.pure_profile.substring(0, 120))}… <button class="btn" style="padding:2px 8px;font-size:11px;" onclick="showModal('${escapeHtml(p.name)}','pure_profile')">Читать</button></div>` : ''}
+                    ${p.daily_story ? `<div class="preview-box visible"><strong>🔮 История:</strong> ${escapeHtml(p.daily_story.substring(0, 120))}… <button class="btn" style="padding:2px 8px;font-size:11px;" onclick="showModal('${escapeHtml(p.name)}','daily_story')">Читать</button> <button class="btn" style="padding:2px 8px;font-size:11px;" onclick="speakStory('${escapeHtml(p.name)}')">🔊 Озвучить</button></div>` : ''}
+                </div>
+                `;
+            }).join('');
+        }
+        
+        function openPawn(name) {
+            window.open('/rimmind/personality/pawn/' + name, '_blank');
+        }
+        
+        function showModal(name, field) {
+            const p = pawnsData.find(x => x.name === name);
+            if (!p || !p[field]) return;
+            const titles = {
+                description: '📖 Описание',
+                workTendencies: '🔧 Рабочие тенденции',
+                socialTendencies: '🗣️ Социальные тенденции',
+                pure_profile: '✨ Чистый профиль',
+                daily_story: '🔮 История дня'
+            };
+            openModal(titles[field] + ' — ' + name, p[field]);
+        }
+        
+        async function generateField(name, field) {
+            showToast(`Генерация ${field}…`);
+            try {
+                const res = await fetch('/rimmind/personality/generate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, field})
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                const pawn = pawnsData.find(p => p.name === name);
+                if (pawn) { pawn[field] = data.text; renderGrid(); }
+                showToast('✅ Готово!');
+                openModal(field + ' — ' + name, data.text);
+            } catch (e) {
+                showToast('❌ ' + e.message, true);
+            }
+        }
+        
+        async function generateAll(name) {
+            showToast('Генерация полного профиля…');
+            try {
+                const res = await fetch('/rimmind/personality/generate_all', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name})
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                const pawn = pawnsData.find(p => p.name === name);
+                if (pawn) {
+                    pawn.description = data.description;
+                    pawn.workTendencies = data.workTendencies;
+                    pawn.socialTendencies = data.socialTendencies;
+                    renderGrid();
+                }
+                showToast('✅ Профиль сгенерирован!');
+                openModal('Полный профиль — ' + name, 
+                    `📖 Описание:\n${data.description}\n\n🔧 Работа:\n${data.workTendencies}\n\n🗣️ Общение:\n${data.socialTendencies}`);
+            } catch (e) {
+                showToast('❌ ' + e.message, true);
+            }
+        }
+        
+        async function generatePure(name) {
+            showToast('Генерация чистого профиля…');
+            try {
+                const res = await fetch('/rimmind/personality/generate_pure', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name})
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                const pawn = pawnsData.find(p => p.name === name);
+                if (pawn) { pawn.pure_profile = data.text; renderGrid(); }
+                showToast('✅ Чистый профиль готов!');
+                openModal('✨ Чистый профиль — ' + name, data.text);
+            } catch (e) {
+                showToast('❌ ' + e.message, true);
+            }
+        }
+        
+        async function generateStory(name) {
+            showToast('Генерация истории…');
+            try {
+                const res = await fetch('/rimmind/personality/generate_story', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, include_colony: true})
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                const pawn = pawnsData.find(p => p.name === name);
+                if (pawn) { pawn.daily_story = data.text; renderGrid(); }
+                showToast('✅ История готова!');
+                openModal('🔮 История дня — ' + name, data.text);
+            } catch (e) {
+                showToast('❌ ' + e.message, true);
+            }
+        }
+        
+        async function speakStory(name) {
+            const p = pawnsData.find(x => x.name === name);
+            if (!p || !p.daily_story) {
+                showToast('Нет истории для озвучки', true);
+                return;
+            }
+            showToast('🔊 Отправляю в очередь озвучки…');
+            try {
+                const res = await fetch('/rimmind/voice/speak', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        text: p.daily_story,
+                        voice: p.voice || 'ru_RU-irina-medium'
+                    })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    showToast('🔊 История поставлена в очередь!');
+                } else {
+                    throw new Error(data.message || 'Ошибка сервера');
+                }
+            } catch (e) {
+                showToast('❌ Ошибка озвучки: ' + e.message, true);
+            }
+        }
+        
+        async function clearCache() {
+            if (!confirm('Очистить весь кэш пешек?')) return;
+            await fetch('/rimmind/personality/clear', {method: 'POST'});
+            lastPawnsHash = "";
+            showToast('Кэш очищен');
+            loadPawns();
+        }
+        
+        function openModal(title, text) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').textContent = text;
+            document.getElementById('modal').classList.add('active');
+        }
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+        function showToast(msg, isError) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast' + (isError ? ' error' : '');
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+        
+        // УБРАНО автообновление — только ручное и после генерации
+        loadPawns();
+    </script>
+</body>
+</html>

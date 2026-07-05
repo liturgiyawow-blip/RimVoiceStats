@@ -1,0 +1,142 @@
+{
+    "Хрякиня": {
+        "voice": "ru_RU-irina-medium",
+        "speaker_id": 0,
+        "length_scale": 1.06,
+        "noise_scale": 0.667,
+        "noise_w": 0.72,
+        "gender": "female",
+        "volume": 1.0,
+        "preset": null
+    },
+    "Егорка": {
+        "voice": "ru_RU-dmitri-medium",
+        "speaker_id": 0,
+        "length_scale": 0.91,
+        "noise_scale": 0.667,
+        "noise_w": 0.84,
+        "gender": "male",
+        "volume": 1.0,
+        "preset": null
+    },
+    "Кит": {
+        "voice": "ru_RU-irina-medium",
+        "speaker_id": 0,
+        "length_scale": 1.07,
+        "noise_scale": 0.667,
+        "noise_w": 0.82,
+        "gender": "female",
+        "volume": 1.0,
+        "preset": null
+    },
+    "Алиса": {
+        "voice": "ru_RU-irina-medium",
+        "speaker_id": 0,
+        "length_scale": 0.91,
+        "noise_scale": 0.667,
+        "noise_w": 0.81,
+        "gender": "female",
+        "volume": 1.0,
+        "preset": null
+    },
+    "Воорг": {
+        "voice": "ru_RU-irina-medium",
+        "speaker_id": 0,
+        "length_scale": 1.14,
+        "noise_scale": 0.667,
+        "noise_w": 0.81,
+        "gender": "female",
+        "volume": 1.0,
+        "preset": null
+    },
+    "Матюшка": {
+        "voice": "ru_RU-denis-medium",
+        "speaker_id": 0,
+        "length_scale": 1.14,
+        "noise_scale": 0.667,
+        "noise_w": 0.75,
+        "gender": "male",
+        "volume": 1.0,
+        "preset": null
+    },
+    "Танька": {
+        "voice": "ru_RU-irina-medium",
+        "speaker_id": 0,
+        "length_scale": 0.91,
+        "noise_scale": 0.667,
+        "noise_w": 0.81,
+        "gender": "female",
+        "volume": 1.0,
+        "preset": null
+    },
+    "Лунтик": {
+        "voice": "ru_RU-ruslan-medium",
+        "speaker_id": 0,
+        "length_scale": 0.94,
+        "noise_scale": 0.667,
+        "noise_w": 0.79,
+        "gender": "male",
+        "volume": 1.0,
+        "preset": null
+    },
+    "Пашка": {
+        "voice": "ru_RU-ruslan-medium",
+        "speaker_id": 0,
+        "length_scale": 0.94,
+        "noise_scale": 0.667,
+        "noise_w": 0.81,
+        "gender": "male",
+        "volume": 1.0,
+        "preset": null
+    },
+    "Донки": {
+        "voice": "ru_RU-denis-medium",
+        "speaker_id": 0,
+        "length_scale": 1.06,
+        "noise_scale": 0.667,
+        "noise_w": 0.74,
+        "gender": "male",
+        "volume": 1.0,
+        "preset": null
+    },
+    "Порксана": {
+        "voice": "ru_RU-irina-medium",
+        "speaker_id": 0,
+        "length_scale": 0.96,
+        "noise_scale": 0.667,
+        "noise_w": 0.86,
+        "gender": "female",
+        "volume": 1.0,
+        "preset": null
+    },
+    "Гааг": {
+        "voice": "ru_RU-irina-medium",
+        "speaker_id": 0,
+        "length_scale": 0.95,
+        "noise_scale": 0.667,
+        "noise_w": 0.84,
+        "gender": "female",
+        "volume": 1.0,
+        "preset": null
+    },
+    "Бийаиш": {
+        "voice": "ru_RU-denis-medium",
+        "speaker_id": 0,
+        "length_scale": 1.01,
+        "noise_scale": 0.667,
+        "noise_w": 0.73,
+        "gender": "male",
+        "volume": 1.0,
+        "preset": null
+    },
+    "Валька": {
+        "voice": "ru_RU-irina-medium",
+        "speaker_id": 0,
+        "length_scale": 0.96,
+        "noise_scale": 0.667,
+        "noise_w": 0.73,
+        "gender": "female",
+        "volume": 1.0,
+        "preset": null
+    }
+}

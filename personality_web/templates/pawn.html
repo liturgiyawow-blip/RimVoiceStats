@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль колониста</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container { max-width: 960px; margin: 0 auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        h1 { color: #e94560; }
+        .subtitle { color: #888; }
+        a.back { color: #e94560; text-decoration: none; }
+        a.back:hover { text-decoration: underline; }
+        
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .btn {
+            background: #16213e;
+            border: 1px solid #0f3460;
+            color: #eee;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: #0f3460; border-color: #e94560; }
+        .btn-primary { background: #e94560; border-color: #e94560; }
+        .btn-primary:hover { background: #ff6b81; }
+        
+        .section {
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            color: #e94560;
+            font-size: 1.1em;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #0f3460;
+            padding-bottom: 8px;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+        }
+        .field { margin-bottom: 6px; }
+        .field-label { color: #888; font-size: 0.85em; }
+        .field-value { color: #fff; }
+        
+        .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .tag {
+            background: #0f3460;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        .tag-trait { background: #533483; }
+        .tag-health { background: #c0392b; }
+        .tag-skill-high { background: #e74c3c; color: #fff; }
+        .tag-skill-mid { background: #f39c12; color: #000; }
+        .tag-skill-low { background: #0f3460; }
+        
+        .memories { max-height: 320px; overflow-y: auto; }
+        .memory-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #0f3460;
+            font-size: 0.9em;
+        }
+        .memory-item:last-child { border-bottom: none; }
+        
+        .gen-block {
+            background: #1a1a2e;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .gen-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .gen-title { color: #e94560; font-weight: 600; }
+        .gen-text {
+            color: #ccc;
+            white-space: pre-wrap;
+            max-height: 140px;
+            overflow-y: auto;
+        }
+        .gen-text.empty { color: #555; font-style: italic; }
+        
+        /* Modal — фикс прокрутки */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.88);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 12px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 92vh;
+            overflow: hidden;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #0f3460;
+            background: #16213e;
+        }
+        .modal-title { color: #e94560; font-size: 1.2em; }
+        .modal-close { background: none; border: none; color: #aaa; font-size: 1.5em; cursor: pointer; }
+        .modal-close:hover { color: #fff; }
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(92vh - 60px);
+            white-space: pre-wrap;
+            line-height: 1.8;
+            color: #ddd;
+            font-size: 1.05em;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px; right: 20px;
+            background: #2ecc71;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 2000;
+        }
+        .toast.error { background: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 id="pawn-name">Загрузка…</h1>
+                <div class="subtitle" id="pawn-subtitle"></div>
+            </div>
+            <a href="/rimmind/personality" class="back">← Назад к списку</a>
+        </div>
+        
+        <div class="actions" id="actions">
+            <button class="btn" onclick="generate('description')">📝 Описание</button>
+            <button class="btn" onclick="generate('workTendencies')">🔧 Работа</button>
+            <button class="btn" onclick="generate('socialTendencies')">🗣️ Общение</button>
+            <button class="btn btn-primary" onclick="generateAll()">✨ Сгенерировать всё</button>
+            <button class="btn" onclick="generatePure()">✨ Чистый профиль</button>
+            <button class="btn" onclick="generateStory()">🔮 История дня</button>
+        </div>
+        
+        <div class="section">
+            <h2>📋 Паспорт</h2>
+            <div class="grid-2" id="passport"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🧬 Черты, здоровье и гены</h2>
+            <div id="traits-health"></div>
+        </div>
+        
+        <div class="section">
+            <h2>📊 Навыки</h2>
+            <div class="tags" id="skills"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🧠 Сгенерированные данные</h2>
+            <div id="generated-data"></div>
+        </div>
+        
+        <div class="section">
+            <h2>💭 Воспоминания</h2>
+            <div class="memories" id="memories"></div>
+        </div>
+    </div>
+    
+    <div id="modal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+        <div class="modal">
+            <div class="modal-header">
+                <span id="modal-title" class="modal-title">Текст</span>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modal-body" class="modal-body"></div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const pawnRaw = {{ pawn_json | safe }};
+        const pawn = (typeof pawnRaw === 'string') ? JSON.parse(pawnRaw) : pawnRaw;
+        const name = pawn.name;
+        const pawnVoice = {{ voice | tojson }};
+        
+        function init() {
+            document.getElementById('pawn-name').textContent = pawn.name;
+            document.getElementById('pawn-subtitle').textContent = 
+                (pawn.gender || '?') + ' · ' + (pawn.race || '?') + (pawn.age ? ' · ' + pawn.age + ' лет' : '') + (pawn.mood ? ' · ' + pawn.mood : '');
+            
+            // Паспорт
+            const passport = document.getElementById('passport');
+            const fields = [
+                ['Имя', pawn.name], ['Пол', pawn.gender], ['Раса', pawn.race],
+                ['Возраст', pawn.age], ['Настроение', pawn.mood],
+                ['Идеология', pawn.ideology], ['Детство', pawn.childhood], ['Взросление', pawn.adulthood],
+            ];
+            passport.innerHTML = fields.map(([label, val]) => 
+                val ? `<div class="field"><div class="field-label">${label}</div><div class="field-value">${escapeHtml(String(val))}</div></div>` : ''
+            ).join('');
+            
+            // Черты / здоровье / гены
+            const th = document.getElementById('traits-health');
+            const traits = (pawn.traits || []).map(t => `<span class="tag tag-trait">${escapeHtml(t)}</span>`).join('');
+            const health = (pawn.health || []).map(h => `<span class="tag tag-health">${escapeHtml(h)}</span>`).join('');
+            const genes = (pawn.genes || []).map(g => `<span class="tag">${escapeHtml(g)}</span>`).join('');
+            th.innerHTML = `<div class="tags">${traits}${health}${genes}</div>`;
+            
+            // Навыки
+            const skillsEl = document.getElementById('skills');
+            if (pawn.skills) {
+                const sorted = Object.entries(pawn.skills).sort((a,b) => b[1]-a[1]);
+                skillsEl.innerHTML = sorted.map(([skill, lvl]) => {
+                    let cls = 'tag-skill-low';
+                    if (lvl > 10) cls = 'tag-skill-high';
+                    else if (lvl > 7) cls = 'tag-skill-mid';
+                    return `<span class="tag ${cls}">${escapeHtml(skill)} (${lvl})</span>`;
+                }).join('');
+            } else {
+                skillsEl.innerHTML = '<span style="color:#666">Нет данных о навыках</span>';
+            }
+            
+            // Воспоминания
+            const mem = document.getElementById('memories');
+            const memories = pawn.memories || [];
+            if (memories.length) {
+                mem.innerHTML = memories.map(m => `<div class="memory-item">${escapeHtml(m)}</div>`).join('');
+            } else {
+                mem.innerHTML = '<span style="color:#666">Нет воспоминаний</span>';
+            }
+            
+            renderGenerated();
+        }
+        
+        function renderGenerated() {
+            const container = document.getElementById('generated-data');
+            const blocks = [
+                {key: 'description', label: '📖 Описание личности'},
+                {key: 'workTendencies', label: '🔧 Рабочие тенденции'},
+                {key: 'socialTendencies', label: '🗣️ Социальные тенденции'},
+                {key: 'pure_profile', label: '✨ Чистый профиль'},
+                {key: 'daily_story', label: '🔮 История дня'},
+            ];
+            
+            container.innerHTML = blocks.map(b => {
+                const text = pawn[b.key];
+                const hasText = text && text.trim();
+                const preview = hasText ? escapeHtml(text.substring(0, 180)) + (text.length > 180 ? '…' : '') : 'Не сгенерировано — нажми кнопку выше';
+                const speakBtn = (b.key === 'daily_story' && hasText) ? 
+                    `<button class="btn" style="padding:4px 10px;font-size:12px;" onclick="speakStory()">🔊 Озвучить</button>` : '';
+                return `
+                <div class="gen-block">
+                    <div class="gen-header">
+                        <span class="gen-title">${b.label}</span>
+                        <div>
+                            ${hasText ? `<button class="btn" style="padding:4px 10px;font-size:12px;" onclick="openModal('${b.label}', pawn['${b.key}'])">Читать полностью</button>` : ''}
+                            ${speakBtn}
+                        </div>
+                    </div>
+                    <div class="gen-text ${hasText ? '' : 'empty'}">${preview}</div>
+                </div>`;
+            }).join('');
+        }
+        
+        async function generate(field) {
+            showToast(`Генерация ${field}…`);
+            try {
+                const res = await fetch('/rimmind/personality/generate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, field})
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                pawn[field] = data.text;
+                renderGenerated();
+                showToast('✅ Готово!');
+                openModal(field, data.text);
+            } catch (e) {
+                showToast('❌ ' + e.message, true);
+            }
+        }
+        
+        async function generateAll() {
+            showToast('Генерация полного профиля…');
+            try {
+                const res = await fetch('/rimmind/personality/generate_all', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name})
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                pawn.description = data.description;
+                pawn.workTendencies = data.workTendencies;
+                pawn.socialTendencies = data.socialTendencies;
+                renderGenerated();
+                showToast('✅ Профиль готов!');
+                openModal('Полный профиль', 
+                    `📖 Описание:\n${data.description}\n\n🔧 Работа:\n${data.workTendencies}\n\n🗣️ Общение:\n${data.socialTendencies}`);
+            } catch (e) {
+                showToast('❌ ' + e.message, true);
+            }
+        }
+        
+        async function generatePure() {
+            showToast('Генерация чистого профиля…');
+            try {
+                const res = await fetch('/rimmind/personality/generate_pure', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name})
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                pawn.pure_profile = data.text;
+                renderGenerated();
+                showToast('✅ Чистый профиль готов!');
+                openModal('✨ Чистый профиль', data.text);
+            } catch (e) {
+                showToast('❌ ' + e.message, true);
+            }
+        }
+        
+        async function generateStory() {
+            showToast('Генерация истории…');
+            try {
+                const res = await fetch('/rimmind/personality/generate_story', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, include_colony: true})
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                pawn.daily_story = data.text;
+                renderGenerated();
+                showToast('✅ История готова!');
+                openModal('🔮 История дня', data.text);
+            } catch (e) {
+                showToast('❌ ' + e.message, true);
+            }
+        }
+        
+        async function speakStory() {
+            if (!pawn.daily_story) {
+                showToast('Нет истории для озвучки', true);
+                return;
+            }
+            showToast('🔊 Отправляю в очередь озвучки…');
+            try {
+                const res = await fetch('/rimmind/voice/speak', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        text: pawn.daily_story,
+                        voice: pawnVoice
+                    })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    showToast('🔊 История поставлена в очередь!');
+                } else {
+                    throw new Error(data.message || 'Ошибка сервера');
+                }
+            } catch (e) {
+                showToast('❌ Ошибка озвучки: ' + e.message, true);
+            }
+        }
+        
+        function openModal(title, text) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').textContent = text;
+            document.getElementById('modal').classList.add('active');
+        }
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+        function showToast(msg, isError) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast' + (isError ? ' error' : '');
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+        
+        init();
+    </script>
+</body>
+</html>
